@@ -21,6 +21,7 @@ from xcomfort.devices import RcTouch
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     PERCENTAGE,
+    UnitOfTemperature
     UnitOfPower,
     UnitOfEnergy,
 )
@@ -55,6 +56,9 @@ async def async_setup_entry(
         if isinstance(device, RcTouch):
             _LOGGER.info(f"Adding humidity sensor for device {device}")
             sensors.append(XComfortHumiditySensor(device))
+
+            _LOGGER.info(f"Adding temperature sensor for room {device}")
+            sensors.append(XComfortTemperatureSensor(device))
 
     _LOGGER.info(f"Added {len(sensors)} rc touch units")
     async_add_entities(sensors)
@@ -160,3 +164,30 @@ class XComfortHumiditySensor(SensorEntity):
     @property
     def native_value(self):
         return self._state and self._state.humidity
+
+
+class XComfortTemperatureSensor(SensorEntity):
+    def __init__(self, device: RcTouch):
+        self.entity_description = SensorEntityDescription(
+            key="temperature",
+            device_class=SensorDeviceClass.TEMPERATURE,
+            native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+            state_class=SensorStateClass.MEASUREMENT,
+            name="Temperature",
+        )
+        self._device = device
+        self._attr_name = self._device.name
+        self._attr_unique_id = f"temperature_{self._device.name}_{self._device.device_id}"
+        self._state = None
+        self._device.state.subscribe(lambda state: self._state_change(state))
+
+    def _state_change(self, state):
+        should_update = self._state is not None
+
+        self._state = state
+        if should_update:
+            self.async_write_ha_state()
+
+    @property
+    def native_value(self):
+        return self._state and self._state.temperature
