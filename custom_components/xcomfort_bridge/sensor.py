@@ -21,7 +21,7 @@ from xcomfort.devices import RcTouch
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     PERCENTAGE,
-    UnitOfTemperature
+    UnitOfTemperature,
     UnitOfPower,
     UnitOfEnergy,
 )
