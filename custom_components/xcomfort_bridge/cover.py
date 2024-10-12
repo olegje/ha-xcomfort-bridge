@@ -6,9 +6,9 @@ from xcomfort.devices import Shade
 
 from homeassistant.components.cover import (
     ATTR_POSITION,
-    CoverEntityFeature,
-    DEVICE_CLASS_SHADE,
+    CoverDeviceClass,
     CoverEntity,
+    CoverEntityFeature,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -67,14 +67,15 @@ class HASSXComfortShade(CoverEntity):
 
     @property
     def device_class(self):
-        return DEVICE_CLASS_SHADE
+        return CoverDeviceClass.SHADE
 
     async def async_added_to_hass(self):
         log(f"Added to hass {self._name} ")
         if self._device.state is None:
             log(f"State is null for {self._name}")
         else:
-            self._device.state.subscribe(lambda state: self._state_change(state))
+            self._device.state.subscribe(
+                lambda state: self._state_change(state))
 
     def _state_change(self, state):
         self._state = state
@@ -128,7 +129,7 @@ class HASSXComfortShade(CoverEntity):
     async def async_open_cover(self, **kwargs):
         """Open the cover."""
         await self._device.move_up()
-    
+
     async def async_close_cover(self, **kwargs):
         """Close cover."""
         await self._device.move_down()
