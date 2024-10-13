@@ -3,14 +3,20 @@ import asyncio
 import logging
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_IP_ADDRESS,Platform
+from homeassistant.const import CONF_IP_ADDRESS, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.typing import ConfigType
 
 from .const import CONF_AUTH_KEY, CONF_IDENTIFIER, DOMAIN
 from .hub import XComfortHub
 
-PLATFORMS = [Platform.LIGHT, Platform.CLIMATE, Platform.SENSOR, Platform.COVER]
+PLATFORMS = [
+    Platform.LIGHT,
+    Platform.CLIMATE,
+    Platform.SENSOR,
+    Platform.COVER,
+    Platform.BINARY_SENSOR
+]
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -35,7 +41,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     await hub.load_devices()
 
-    await hass.config_entries.async_forward_entry_setups (entry, PLATFORMS)
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True
 
