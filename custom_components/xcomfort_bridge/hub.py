@@ -7,9 +7,7 @@ import logging
 from typing import List
 
 from xcomfort.bridge import Bridge
-# This create error:
 from .xcomfort_binary_sensor import BinarySensor
-# custom_components/xcomfort_bridge/xcomfort_binary_sensor.py
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, EventBus

@@ -8,7 +8,6 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .const import DOMAIN, VERBOSE
 # Test:
 from .hub import XComfortHub, BinarySensor
-from .hub import XComfortHub
 _LOGGER = logging.getLogger(__name__)
 
 
