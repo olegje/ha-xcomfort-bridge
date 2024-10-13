@@ -1,14 +1,11 @@
 import asyncio
+from functools import cached_property
 import logging
 from math import ceil
 
 from xcomfort.devices import Light
 
-from homeassistant.components.light import (
-    ATTR_BRIGHTNESS,
-    SUPPORT_BRIGHTNESS,
-    LightEntity,
-)
+from homeassistant.components.light import ATTR_BRIGHTNESS, LightEntity, ColorMode
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import Entity
@@ -43,7 +40,7 @@ async def async_setup_entry(
 
     lights = list()
     for device in devices:
-        if isinstance(device,Light):
+        if isinstance(device, Light):
             _LOGGER.info(f"Adding {device}")
             light = HASSXComfortLight(hass, hub, device)
             lights.append(light)
@@ -66,13 +63,15 @@ class HASSXComfortLight(LightEntity):
         # self.versionFW = comp["versionFW"]
 
         self._unique_id = f"light_{DOMAIN}_{hub.identifier}-{device.device_id}"
+        self._color_mode = ColorMode.BRIGHTNESS if self._device.dimmable else ColorMode.ONOFF
 
     async def async_added_to_hass(self):
         log(f"Added to hass {self._name} ")
         if self._device.state is None:
             log(f"State is null for {self._name}")
         else:
-            self._device.state.subscribe(lambda state: self._state_change(state))
+            self._device.state.subscribe(
+                lambda state: self._state_change(state))
 
     def _state_change(self, state):
         self._state = state
@@ -121,14 +120,15 @@ class HASSXComfortLight(LightEntity):
     @property
     def is_on(self):
         """Return true if light is on."""
-        return self._state.switch
+        return self._state and self._state.switch
 
     @property
-    def supported_features(self):
-        """Flag supported features."""
-        if self._device.dimmable:
-            return SUPPORT_BRIGHTNESS
-        return 0
+    def color_mode(self) -> ColorMode:
+        return self._color_mode
+
+    @cached_property
+    def supported_color_modes(self) -> set[ColorMode] | set[str] | None:
+        return {self._color_mode}
 
     async def async_turn_on(self, **kwargs):
         log(f"async_turn_on {self._name} : {kwargs}")
